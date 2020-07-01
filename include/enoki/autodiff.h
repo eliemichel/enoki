@@ -271,6 +271,25 @@ public:
         }
     }
 
+    /**
+     * Record custom operation with hand tuned derivative
+     */
+    DiffArray elie_(const DiffArray& a, Type result, const Type& dresult_over_dthis, const Type& dresult_over_da) const {
+        if constexpr (is_mask_v<Type> || std::is_pointer_v<Scalar>) {
+            fail_unsupported("elie_");
+        }
+        else {
+            Index index_new = 0;
+            if constexpr (Enabled) {
+                index_new = tape()->append("elie", slices(result),
+                    m_index, a.m_index,
+                    dresult_over_dthis,
+                    dresult_over_da);
+            }
+            return DiffArray::create(index_new, std::move(result));
+        }
+    }
+
     DiffArray fmadd_(const DiffArray &a, const DiffArray &b) const {
         if constexpr (is_mask_v<Type>) {
             fail_unsupported("fmadd_");
@@ -1537,7 +1556,7 @@ template <typename T> std::string graphviz(const T &value) {
 #  define ENOKI_AUTODIFF_EXPORT ENOKI_IMPORT
 #  if defined(_MSC_VER)
 #    define ENOKI_AUTODIFF_EXTERN
-#else
+#  else
 #    define ENOKI_AUTODIFF_EXTERN extern
 #  endif
 #endif

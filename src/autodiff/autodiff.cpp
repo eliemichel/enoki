@@ -892,7 +892,7 @@ void Tape<Value>::backward(bool free_graph) {
             }
             dec_ref_ext(target_idx);
         } else {
-            if (target.ref_count_int > 0)
+            if (target.ref_count_int == 0)
                 target.grad = Value();
         }
     }
